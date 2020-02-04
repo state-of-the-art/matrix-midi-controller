@@ -173,8 +173,8 @@ const MenuItem menu_items[] { // DON'T FORGET TO ADD menu_items_act default acti
   { 0x000001, velocityMed, "Velocity medium" },  // 2
   { 0x000100, velocityMin, "Velocity minimum" }, // 3
   // Tune
-  { 0x000100, tuneUp, "Tune up" }, // 4
-  { 0x010000, tuneDown, "Tune down" }, // 5
+  { 0x010000, tuneUp, "Tune up" }, // 4
+  { 0x000100, tuneDown, "Tune down" }, // 5
   // Keys BG Highlight
   { 0x010101, keysBGHighlightTrigger, "Keys BG Highlight" }, // 6
   // Brightness
@@ -185,8 +185,8 @@ const MenuItem menu_items[] { // DON'T FORGET TO ADD menu_items_act default acti
   // C highlight
   { 0x000100, keysCHighlightTrigger, "Keys C highlight" }, // 10
   // Octave
-  { 0x000100, octaveUp, "Octave up" }, // 11
-  { 0x010000, octaveDown, "Octave down" }, // 12
+  { 0x010000, octaveUp, "Octave up" }, // 11
+  { 0x000100, octaveDown, "Octave down" }, // 12
 };
 
 // TODO: Allow to map menu options as hotkey to the keys layout

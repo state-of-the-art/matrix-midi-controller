@@ -30,6 +30,7 @@ Adafruit_MultiTrellis trellis((Adafruit_NeoTrellis *)t_array, Y_DIM/4, X_DIM/4);
 byte _velocity = 100;
 int8_t _tune = 0;
 byte _channel = 1;
+int8_t _channel_pitch = 0;
 byte _mode = 0; // 0 - menu, 1 - keys
 byte _mode_prev = 0; // Previous mode to return back
 unsigned long _key_press_time = 0; // To store long press for key
@@ -41,6 +42,7 @@ byte _midi_clock_tick = 0;
 bool _highlight_bg_keys = true;
 bool _vertical_lines_keys = true;
 bool _highlight_c_keys = true;
+bool _pitch_show = true;
 
 struct ScrollItem {
   const char *text; // Text to scroll
@@ -83,6 +85,7 @@ bool menu_items_act[] = { // Active items
   true, // Vertical lines
   true, // C highlight
   false, false, // Octave Up / Down
+  true, // Pitch trigger
 };
 
 void velocityMax() {
@@ -160,6 +163,12 @@ void keysCHighlightTrigger() {
   EEPROM.write(110, _highlight_c_keys);
 }
 
+void pitchTrigger() {
+  _pitch_show = !_pitch_show;
+  menu_items_act[13] = _pitch_show;
+  EEPROM.write(113, _pitch_show);
+}
+
 struct MenuItem {
   long color; // Color of the menu button
   void (*fun)(); // Function to execute on activate
@@ -187,13 +196,15 @@ const MenuItem menu_items[] { // DON'T FORGET TO ADD menu_items_act default acti
   // Octave
   { 0x010000, octaveUp, "Octave up" }, // 11
   { 0x000100, octaveDown, "Octave down" }, // 12
+  // Pitch control
+  { 0x000101, pitchTrigger, "Pitch trigger" }, // 13
 };
 
 // TODO: Allow to map menu options as hotkey to the keys layout
 const byte menu_mapping[Y_DIM*X_DIM] = {
   // 1
   1, 0, 5, 4,
-  0, 0, 0, 0,
+  0, 13, 0, 0,
   0, 0, 0, 0,
   0, 0, 0, 0,
   0, 0, 0, 0,
@@ -257,6 +268,8 @@ void keySetColor(int x, int y, long color = 0x0) {
   int key_n = y*X_DIM+x;
   if( key_n == MENU_BUTTON ) // Menu button show in a different color
     trellis.setPixelColor(x, y, 0x010000 * _brightness);
+  else if( _pitch_show && y == 0 && x < 4 ) // Show pitch control buttons
+    trellis.setPixelColor(x, y, (x == 0 || x == 3 ? 0x000100 : 0x000001) * _brightness);
   else if( keyGet(key_n) > 127 ) // Do not show keys not in the midi range 0..127
     trellis.setPixelColor(x, y, 0x0);
   else if( _highlight_c_keys && keyGet(key_n) == 60 ) // Show C3 note (middle to locate current tune)
@@ -357,6 +370,9 @@ void modeSet(byte mode) {
 
 // Callback for button
 TrellisCallback _buttonPressed(keyEvent evt) {
+  int x = evt.bit.NUM % X_DIM;
+  int y = evt.bit.NUM / X_DIM;
+
   if( evt.bit.EDGE == SEESAW_KEYPAD_EDGE_RISING ) { // on rising
     _key_press_time = millis();
     Serial.printf("Pressing button %i\n", evt.bit.NUM);
@@ -370,7 +386,12 @@ TrellisCallback _buttonPressed(keyEvent evt) {
       trellis.setPixelColor(evt.bit.NUM, 0x040000 * _brightness);
     } else {
       if( _mode == 1 ) { // Keys
-        if( keyGet(evt.bit.NUM) <= 127 ) {
+        if( _pitch_show && y == 0 && x < 4 ) { // Pitch control buttons
+          _channel_pitch = min((x+(x>>1)) * 0x20, 0x7f); // Skipping zero value
+          int16_t channel_bend = (_channel_pitch>>6) * ((_channel_pitch-0x40)*2 + (_channel_pitch >= 0x7f ? 1 : 0));
+          usbMIDI.sendPitchBend((channel_bend | (((int16_t)_channel_pitch)<<7)) + MIDI_PITCHBEND_MIN, _channel);
+          trellis.setPixelColor(x, y, (x == 0 || x == 3 ? 0x000100 : 0x000001) * (_brightness*2));
+        } else if( keyGet(evt.bit.NUM) <= 127 ) {
           usbMIDI.sendNoteOn(keyGet(evt.bit.NUM), _velocity, _channel);
           trellis.setPixelColor(evt.bit.NUM, 0x000404 * _brightness);
         }
@@ -389,17 +410,24 @@ TrellisCallback _buttonPressed(keyEvent evt) {
         modeSet(_mode_prev);
     } else {
       if( _mode == 1 ) { // Keys
-        if( keyGet(evt.bit.NUM) <= 127 ) {
+        if( _pitch_show && y == 0 && x < 4 ) { // Pitch control buttons
+          if( _channel_pitch == min((x+(x>>1)) * 0x20, 0x7f) ) {
+            _channel_pitch = 0;
+            usbMIDI.sendPitchBend(0x0000, _channel);
+          }
+          keySetColor(x, evt.bit.NUM / X_DIM);
+        } else if( keyGet(evt.bit.NUM) <= 127 ) {
           usbMIDI.sendNoteOff(keyGet(evt.bit.NUM), _velocity, _channel);
-          int x = evt.bit.NUM % X_DIM;
           
           keySetColor(x, evt.bit.NUM / X_DIM);
         }
       } else if( _mode == 0 ) { // Menu
-        if( _key_press_time > millis() - 500 )
-          menu_items[menu_mapping[evt.bit.NUM]].fun();
-        menu_opt_desc.active = false;
-        _menuOpen();
+        if( menu_mapping[evt.bit.NUM] != 0 ) {
+          if( _key_press_time > millis() - 500 )
+            menu_items[menu_mapping[evt.bit.NUM]].fun();
+          menu_opt_desc.active = false;
+          _menuOpen();
+        }
       }
     }
   }
@@ -451,6 +479,11 @@ void settingsRead() {
   data = EEPROM.read(110);
   if( _highlight_c_keys != (bool)data )
     keysCHighlightTrigger();
+
+  // Pitch controller show
+  data = EEPROM.read(113);
+  if( _pitch_show != (bool)data )
+    pitchTrigger();
 }
 
 void onNoteOn(byte channel, byte note, byte velocity) {

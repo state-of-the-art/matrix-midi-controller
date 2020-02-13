@@ -299,6 +299,7 @@ void _menuOpen() {
 }
 
 void _keysOpen() {
+  menu_opt_desc.active = false;
   for( int y=0; y<Y_DIM; y++ ) {
     for( int x=0; x<X_DIM; x++ ) {
       keySetColor(x, y);

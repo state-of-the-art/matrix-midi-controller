@@ -1,25 +1,30 @@
 # SotA Matrix MIDI Controller
 
-Simple DIY prototype of MIDI controller based on Teensy & Adafruit NeoTrellis board inspired by
-awesome but expensive [Monome Grid](https://monome.org/docs/grid/) and
+A simple and affordable DIY prototype of a non-standard MIDI controller based on Teensy & Adafruit NeoTrellis boards.
+Inspired by premium-class devices like [Monome Grid](https://monome.org/docs/grid/) and
 [Linnstrument](http://www.rogerlinndesign.com/linnstrument.html).
 
 * [Site page about it](https://www.state-of-the-art.io/projects/matrix-midi-controller/)
 
+## Authors
+
+* Original design, basic requirements, testing: [John Halpart](https://github.com/memorylick)
+* Hardware & Software realization: [Rabit](https://github.com/rabits)
+
 ## Features
 
-* USB MIDI output: multiple simultaneous active buttons
-* USB MIDI input: highlight keys, clock indication
-* Flexible keys & menu layout configuration (by change src right now)
-* Adjustable brightness & options to disable the helper indicators
-* Adjustable velocity and tuning
-* Menu buttons hints by long press on interesting button
+* USB MIDI output: multiple simultaneously active notes, pitch bend
+* USB MIDI input: key highlighting, clock indication
+* Flexible keys & menu layouts (for the moment, by src change only)
+* Adjustable brightness & multiple combinable options for keys' highlighting
+* Adjustable output velocity and tuning of the matrix
+* Sliding text description of the menu buttons (via long press)
 
 ## Plans
 
-If the project will get some good feedback - we can think about kickstarter with fixed issues and maybe
-with additional features like linnstrument have - but for much less price (~$200-300). So don't hesitate
-and say what do you think about it :)
+If somehow the project manages to get positive attention, a Kickstarter campaign and making of an improved $200-300
+consumer-grade model is definitely a possibility. So don't hesitate to tell us what you think of this :) In the meantime we
+are going to be expending the current prototype's functionality. 
 
 ## Components
 
@@ -29,35 +34,36 @@ and say what do you think about it :)
 [Amazon](https://www.amazon.com/dp/B00SK8O5D2/)
 * $19.80 Teensy 3.2 - [PJRC](https://www.pjrc.com/store/teensy32.html)
 [Amazon](https://www.amazon.com/dp/B015M3K5NG/)
-* Number of wires, micro-usb cable, small screws, 3d printer to print the enclosure (top cover is available)
+* Certain amount of wires and small crews, a micro-usb cable, 3D-printed enclosure (you can use our model of the top cover)
 
-Total: ~$210
+Total cost: ~$210
 
 ### Options
 
-* You can try to use another control board, that supports i2c & usb MIDI.
-* Also you can try to use another number of boards to get some different configuration
+* You can use a different development board, as long as it supports i2c & USB MIDI
+* You can also try a different amount of NeoTrellis boards and/or put them together in a different configuration
 
-If you change something, most probably you will need to adjust the source code.
+If you make changes to the hardware, you will most likely have to adjust the source code.
 
 ## Known issues
 
 * Adafruit NeoTrellis PCB:
-    * Button can touch led terminals and activate the vertical line of board buttons - you can insulate the
-    terminals using glue or any other way to fix this.
-    * Buttons is quite hard to operate - easy to hit, but to press a number of buttons you need to practice
+    * On press, the silicone buttons can touch the LED terminals, which activates the entire vertical line of button on
+    the board. You may have to insulate the terminals with adhesive or apply some other fix.
+    * Said buttons weren't exactly made with musical instruments in mind: they are quite stiff and definitely take time
+    to get used to.
 
-You also can check the issues page on GitHub:
+For reported bugs and upcoming features check the issues page on GitHub:
 * [Issues](https://github.com/state-of-the-art/matrix-midi-controller/issues)
 
 ## Arduino IDE & build
 
-It's a good idea to find the teensy board page and follow the instructions:
+A good place to start would be the Teensy board page:
 
 * [Teensyduino](https://www.pjrc.com/teensy/td_download.html)
 
-To build - just open the sketch with Arduino IDE and click Verify button.
-To flash - connect the Teensy board, select the port & click Upload button.
+To build - open the sketch with Arduino IDE and click the Verify button.
+To flash - connect the Teensy board, select the port, and click the Upload button.
 
 ### Configs
 
@@ -67,14 +73,14 @@ To flash - connect the Teensy board, select the port & click Upload button.
 
 ## OpenSource
 
-This is an experimental project - main goal is to test State Of The Art philosophy on practice.
+This is an experimental project. The main goal is to test State of the Art philosophy in practice.
 
-We would like to see a number of independent developers working on the same project issues
-for the real money (attached to the ticket) or just for fun. So let's see how this will work.
+We would love to see independent developers working on the project's issues: for fun and interest as well as for monetary
+compensation (say, attached to the tickets).
 
 ### License
 
-Repository and it's content is covered by `Apache v2.0` - so anyone can use it without any concerns.
+The repository and its contents are covered by `Apache v2.0`, so anyone can use it without any concerns.
 
-If you will have some time - it will be great to see your changes merged to the original repository -
-but it's your choise, no pressure.
+If you have any changes you'd like to share, don't hesitate to make a pull-request and push them into the original repository.
+Definitely no pressure though.

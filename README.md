@@ -1,5 +1,7 @@
 # SotA Matrix MIDI Controller
 
+[![Join the chat at https://gitter.im/state-of-the-art/Matrix-MIDI-Controller](https://badges.gitter.im/state-of-the-art/Matrix-MIDI-Controller.svg)](https://gitter.im/state-of-the-art/Matrix-MIDI-Controller?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A simple and affordable DIY prototype of a non-standard MIDI controller based on Teensy & Adafruit NeoTrellis boards.
 Inspired by premium-class devices like [Monome Grid](https://monome.org/docs/grid/) and
 [Linnstrument](http://www.rogerlinndesign.com/linnstrument.html).
